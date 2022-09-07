@@ -37,23 +37,23 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.GenericApplicationContext;
-import org.springframework.core.env.StandardEnvironment;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.util.StringUtils;
 
 @Configuration
 public class ExtProducerResetConfiguration implements ApplicationContextAware, SmartInitializingSingleton {
-    private final static Logger log = LoggerFactory.getLogger(ExtProducerResetConfiguration.class);
+    private static final Logger log = LoggerFactory.getLogger(ExtProducerResetConfiguration.class);
 
     private ConfigurableApplicationContext applicationContext;
 
-    private StandardEnvironment environment;
+    private ConfigurableEnvironment environment;
 
     private RocketMQProperties rocketMQProperties;
 
     private RocketMQMessageConverter rocketMQMessageConverter;
 
     public ExtProducerResetConfiguration(RocketMQMessageConverter rocketMQMessageConverter,
-        StandardEnvironment environment, RocketMQProperties rocketMQProperties) {
+        ConfigurableEnvironment environment, RocketMQProperties rocketMQProperties) {
         this.rocketMQMessageConverter = rocketMQMessageConverter;
         this.environment = environment;
         this.rocketMQProperties = rocketMQProperties;
@@ -127,7 +127,7 @@ public class ExtProducerResetConfiguration implements ApplicationContextAware, S
         producer.setCompressMsgBodyOverHowmuch(annotation.compressMessageBodyThreshold() == -1 ? producerConfig.getCompressMessageBodyThreshold() : annotation.compressMessageBodyThreshold());
         producer.setRetryAnotherBrokerWhenNotStoreOK(annotation.retryNextServer());
         producer.setUseTLS(useTLS);
-        producer.setNamespace(annotation.namespace());
+        producer.setNamespace(RocketMQUtil.getNamespace(annotation.namespace(), producerConfig.getNamespace()));
         producer.setInstanceName(annotation.instanceName());
         return producer;
     }

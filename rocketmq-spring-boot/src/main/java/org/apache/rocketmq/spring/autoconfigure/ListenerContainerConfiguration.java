@@ -27,6 +27,7 @@ import org.apache.rocketmq.spring.core.RocketMQListener;
 import org.apache.rocketmq.spring.core.RocketMQReplyListener;
 import org.apache.rocketmq.spring.support.DefaultRocketMQListenerContainer;
 import org.apache.rocketmq.spring.support.RocketMQMessageConverter;
+import org.apache.rocketmq.spring.support.RocketMQUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.framework.AopProxyUtils;
@@ -37,7 +38,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.GenericApplicationContext;
-import org.springframework.core.env.StandardEnvironment;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.util.StringUtils;
 
 @Configuration
@@ -48,14 +49,14 @@ public class ListenerContainerConfiguration implements ApplicationContextAware {
 
     private AtomicLong counter = new AtomicLong(0);
 
-    private StandardEnvironment environment;
+    private ConfigurableEnvironment environment;
 
     private RocketMQProperties rocketMQProperties;
 
     private RocketMQMessageConverter rocketMQMessageConverter;
 
     public ListenerContainerConfiguration(RocketMQMessageConverter rocketMQMessageConverter,
-        StandardEnvironment environment, RocketMQProperties rocketMQProperties) {
+        ConfigurableEnvironment environment, RocketMQProperties rocketMQProperties) {
         this.rocketMQMessageConverter = rocketMQMessageConverter;
         this.environment = environment;
         this.rocketMQProperties = rocketMQProperties;
@@ -140,6 +141,8 @@ public class ListenerContainerConfiguration implements ApplicationContextAware {
         container.setMessageConverter(rocketMQMessageConverter.getMessageConverter());
         container.setName(name);
 
+        container.setNamespace(RocketMQUtil.getNamespace(container.getNamespace(),
+            rocketMQProperties.getPushConsumer().getNamespace()));
         return container;
     }
 
